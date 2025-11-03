@@ -7,7 +7,10 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Medicines from "./pages/Medicines";
 import WaterTracker from "./pages/WaterTracker";
-import PlaceholderPage from "./pages/PlaceholderPage";
+import Appointments from "./pages/Appointments";
+import Nutrition from "./pages/Nutrition";
+import AIChat from "./pages/AIChat";
+import PrescriptionAnalyzer from "./pages/PrescriptionAnalyzer";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -49,10 +52,7 @@ const App = () => (
             path="/appointments"
             element={
               <ProtectedRoute>
-                <PlaceholderPage
-                  title="Appointments"
-                  description="Schedule and manage your doctor visits"
-                />
+                <Appointments />
               </ProtectedRoute>
             }
           />
@@ -60,10 +60,7 @@ const App = () => (
             path="/nutrition"
             element={
               <ProtectedRoute>
-                <PlaceholderPage
-                  title="Nutrition Planner"
-                  description="Track your meals and get AI-powered diet suggestions"
-                />
+                <Nutrition />
               </ProtectedRoute>
             }
           />
@@ -71,10 +68,15 @@ const App = () => (
             path="/chat"
             element={
               <ProtectedRoute>
-                <PlaceholderPage
-                  title="AI Health Assistant"
-                  description="Chat with your AI health companion"
-                />
+                <AIChat />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/prescription"
+            element={
+              <ProtectedRoute>
+                <PrescriptionAnalyzer />
               </ProtectedRoute>
             }
           />

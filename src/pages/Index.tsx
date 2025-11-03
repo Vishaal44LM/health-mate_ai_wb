@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import DashboardCard from "@/components/DashboardCard";
-import { Pill, Droplet, Calendar, TrendingUp } from "lucide-react";
+import MedicineReminder from "@/components/MedicineReminder";
+import { Pill, Droplet, Calendar, TrendingUp, MessageSquare, FileText } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -133,32 +135,54 @@ const Index = () => {
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <button
+              <Button
                 onClick={() => navigate("/medicines")}
-                className="w-full text-left px-4 py-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+                variant="outline"
+                className="w-full justify-start hover-scale"
               >
-                <div className="flex items-center gap-3">
-                  <Pill className="h-5 w-5 text-primary" />
-                  <div>
-                    <p className="font-medium">Add Medicine</p>
-                    <p className="text-xs text-muted-foreground">Manage your medications</p>
-                  </div>
+                <Pill className="h-5 w-5 text-primary mr-3" />
+                <div className="text-left">
+                  <p className="font-medium">Add Medicine</p>
+                  <p className="text-xs text-muted-foreground">Manage your medications</p>
                 </div>
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => navigate("/water")}
-                className="w-full text-left px-4 py-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+                variant="outline"
+                className="w-full justify-start hover-scale"
               >
-                <div className="flex items-center gap-3">
-                  <Droplet className="h-5 w-5 text-blue-500" />
-                  <div>
-                    <p className="font-medium">Log Water Intake</p>
-                    <p className="text-xs text-muted-foreground">Track your hydration</p>
-                  </div>
+                <Droplet className="h-5 w-5 text-blue-500 mr-3" />
+                <div className="text-left">
+                  <p className="font-medium">Log Water Intake</p>
+                  <p className="text-xs text-muted-foreground">Track your hydration</p>
                 </div>
-              </button>
+              </Button>
+              <Button
+                onClick={() => navigate("/chat")}
+                variant="outline"
+                className="w-full justify-start hover-scale"
+              >
+                <MessageSquare className="h-5 w-5 text-primary mr-3" />
+                <div className="text-left">
+                  <p className="font-medium">AI Health Chat</p>
+                  <p className="text-xs text-muted-foreground">Ask health questions</p>
+                </div>
+              </Button>
+              <Button
+                onClick={() => navigate("/prescription")}
+                variant="outline"
+                className="w-full justify-start hover-scale"
+              >
+                <FileText className="h-5 w-5 text-primary mr-3" />
+                <div className="text-left">
+                  <p className="font-medium">Analyze Prescription</p>
+                  <p className="text-xs text-muted-foreground">Upload and understand prescriptions</p>
+                </div>
+              </Button>
             </CardContent>
           </Card>
+
+          <MedicineReminder />
         </div>
       </div>
     </div>

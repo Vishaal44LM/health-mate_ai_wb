@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Activity, Home, Pill, Droplet, Calendar, Utensils, MessageSquare, LogOut } from "lucide-react";
+import { Activity, Home, Pill, Droplet, Calendar, Utensils, MessageSquare, FileText, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -97,6 +97,17 @@ const Navbar = () => {
               <Link to="/chat">
                 <MessageSquare className="h-4 w-4 mr-2" />
                 AI Chat
+              </Link>
+            </Button>
+            
+            <Button
+              variant={isActive("/prescription") ? "secondary" : "ghost"}
+              size="sm"
+              asChild
+            >
+              <Link to="/prescription">
+                <FileText className="h-4 w-4 mr-2" />
+                Prescription
               </Link>
             </Button>
 
