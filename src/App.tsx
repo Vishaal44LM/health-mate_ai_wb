@@ -4,7 +4,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import Auth from "./pages/Auth";
+import Medicines from "./pages/Medicines";
+import WaterTracker from "./pages/WaterTracker";
+import PlaceholderPage from "./pages/PlaceholderPage";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -15,7 +20,64 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Index />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/medicines"
+            element={
+              <ProtectedRoute>
+                <Medicines />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/water"
+            element={
+              <ProtectedRoute>
+                <WaterTracker />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/appointments"
+            element={
+              <ProtectedRoute>
+                <PlaceholderPage
+                  title="Appointments"
+                  description="Schedule and manage your doctor visits"
+                />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/nutrition"
+            element={
+              <ProtectedRoute>
+                <PlaceholderPage
+                  title="Nutrition Planner"
+                  description="Track your meals and get AI-powered diet suggestions"
+                />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <PlaceholderPage
+                  title="AI Health Assistant"
+                  description="Chat with your AI health companion"
+                />
+              </ProtectedRoute>
+            }
+          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
