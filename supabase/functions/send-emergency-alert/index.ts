@@ -28,25 +28,20 @@ serve(async (req) => {
       throw new Error('No authorization header');
     }
 
-    // Create Supabase client with user's JWT token for auth.getUser()
-    const supabaseClient = createClient(
-      SUPABASE_URL!,
-      Deno.env.get('SUPABASE_ANON_KEY')!,
-      {
-        global: {
-          headers: { Authorization: authHeader },
-        },
-      }
-    );
-
-    // Get user from auth header
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-    if (userError || !user) {
-      console.error('Auth error:', userError);
+    // Extract user id from JWT without remote call
+    const token = authHeader.replace(/Bearer\s+/i, '').trim();
+    let userId: string | null = null;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1] ?? ''));
+      userId = payload?.sub ?? null;
+    } catch (e) {
+      console.error('JWT parse error', e);
+    }
+    if (!userId) {
       throw new Error('Unauthorized');
     }
 
-    console.log(`Fetching contacts for user: ${user.id}`);
+    console.log(`Fetching contacts for user: ${userId}`);
 
     // Create admin client for database queries
     const supabase = createClient(
@@ -58,7 +53,7 @@ serve(async (req) => {
     const { data: contacts, error: contactsError } = await supabase
       .from('emergency_contacts')
       .select('*')
-      .eq('user_id', user.id);
+      .eq('user_id', userId);
 
     if (contactsError) {
       console.error('Error fetching contacts:', contactsError);
