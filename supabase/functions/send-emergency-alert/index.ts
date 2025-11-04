@@ -28,10 +28,10 @@ serve(async (req) => {
       throw new Error('No authorization header');
     }
 
-    // Create Supabase client with the user's token
-    const supabase = createClient(
+    // Create Supabase client with user's JWT token for auth.getUser()
+    const supabaseClient = createClient(
       SUPABASE_URL!,
-      SUPABASE_SERVICE_ROLE_KEY!,
+      Deno.env.get('SUPABASE_ANON_KEY')!,
       {
         global: {
           headers: { Authorization: authHeader },
@@ -40,10 +40,19 @@ serve(async (req) => {
     );
 
     // Get user from auth header
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
     if (userError || !user) {
+      console.error('Auth error:', userError);
       throw new Error('Unauthorized');
     }
+
+    console.log(`Fetching contacts for user: ${user.id}`);
+
+    // Create admin client for database queries
+    const supabase = createClient(
+      SUPABASE_URL!,
+      SUPABASE_SERVICE_ROLE_KEY!
+    );
 
     // Fetch emergency contacts for this user
     const { data: contacts, error: contactsError } = await supabase
