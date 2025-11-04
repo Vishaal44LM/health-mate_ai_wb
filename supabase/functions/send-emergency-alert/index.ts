@@ -69,19 +69,15 @@ serve(async (req) => {
 
     console.log(`Sending emergency alerts to ${contacts.length} contacts`);
 
-    // Send email to each contact
-    const emailPromises = contacts.map(async (contact) => {
-      const emailResponse = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'Health Mate Emergency <onboarding@resend.dev>',
-          to: [contact.email],
-          subject: '🚨 EMERGENCY ALERT from Health Mate',
-          html: `
+    // Send emails with rate limiting (2 req/sec) and retries
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+    const sendEmailWithRetry = async (contact: any) => {
+      const payload = {
+        from: (Deno.env.get('RESEND_FROM') || 'Health Mate Emergency <onboarding@resend.dev>'),
+        to: [contact.email],
+        subject: '🚨 EMERGENCY ALERT from Health Mate',
+        html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: #dc2626; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
                 <h1 style="margin: 0; font-size: 24px;">🚨 EMERGENCY ALERT</h1>
@@ -115,21 +111,60 @@ serve(async (req) => {
               </div>
             </div>
           `,
-        }),
-      });
+      };
 
-      if (!emailResponse.ok) {
+      const maxRetries = 3;
+      let attempt = 0;
+      let lastError: any = null;
+
+      while (attempt < maxRetries) {
+        attempt++;
+        const emailResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${RESEND_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (emailResponse.ok) {
+          const data = await emailResponse.json();
+          console.log(`Email sent to ${contact.email}:`, data);
+          return { contact: contact.name, email: contact.email, success: true, messageId: data.id };
+        }
+
+        // Capture error and decide if we should retry
+        const status = emailResponse.status;
         const errorText = await emailResponse.text();
-        console.error(`Failed to send to ${contact.email}:`, errorText);
-        return { contact: contact.name, success: false, error: errorText };
+        lastError = { status, errorText };
+        console.error(`Attempt ${attempt} failed for ${contact.email}:`, errorText);
+
+        // Retry only on rate limits or transient server errors
+        if (status === 429 || status >= 500) {
+          const backoff = 400 * attempt + Math.floor(Math.random() * 200);
+          await sleep(backoff);
+          continue;
+        }
+
+        // For other errors (e.g., Resend sandbox validation 403), don't retry
+        break;
       }
 
-      const data = await emailResponse.json();
-      console.log(`Email sent to ${contact.email}:`, data);
-      return { contact: contact.name, success: true, messageId: data.id };
-    });
+      return { contact: contact.name, email: contact.email, success: false, error: lastError };
+    };
 
-    const results = await Promise.all(emailPromises);
+    // Resend free tier allows 2 requests/second. Send in small batches to avoid 429.
+    const batchSize = 2;
+    const results: any[] = [];
+    for (let i = 0; i < contacts.length; i += batchSize) {
+      const batch = contacts.slice(i, i + batchSize);
+      const batchResults = await Promise.all(batch.map((c) => sendEmailWithRetry(c)));
+      results.push(...batchResults);
+      if (i + batchSize < contacts.length) {
+        await sleep(700); // ~1.4 req/sec overall, safe below 2 req/sec limit
+      }
+    }
     const successCount = results.filter(r => r.success).length;
 
     return new Response(
