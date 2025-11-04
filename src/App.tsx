@@ -11,6 +11,7 @@ import Appointments from "./pages/Appointments";
 import Nutrition from "./pages/Nutrition";
 import AIChat from "./pages/AIChat";
 import PrescriptionAnalyzer from "./pages/PrescriptionAnalyzer";
+import Emergency from "./pages/Emergency";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -77,6 +78,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <PrescriptionAnalyzer />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/emergency"
+            element={
+              <ProtectedRoute>
+                <Emergency />
               </ProtectedRoute>
             }
           />

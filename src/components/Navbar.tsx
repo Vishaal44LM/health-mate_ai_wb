@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Activity, Home, Pill, Droplet, Calendar, Utensils, MessageSquare, FileText, LogOut } from "lucide-react";
+import { Activity, Home, Pill, Droplet, Calendar, Utensils, MessageSquare, FileText, LogOut, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -108,6 +108,18 @@ const Navbar = () => {
               <Link to="/prescription">
                 <FileText className="h-4 w-4 mr-2" />
                 Prescription
+              </Link>
+            </Button>
+
+            <Button
+              variant={isActive("/emergency") ? "secondary" : "ghost"}
+              size="sm"
+              asChild
+              className={isActive("/emergency") ? "" : "text-destructive hover:text-destructive"}
+            >
+              <Link to="/emergency">
+                <AlertTriangle className="h-4 w-4 mr-2" />
+                Emergency
               </Link>
             </Button>
 
